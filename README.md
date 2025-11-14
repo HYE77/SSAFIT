@@ -5,6 +5,9 @@
 **홈트 관리 어시스턴트 SSAFIT**은은 영상 기반 홈트에 **PT 코칭과 게이미피케이션 요소**를 더해,  
 유저가 꾸준히 운동 루틴을 만들 수 있도록 돕는 서비스입니다.
 
+[Check Out our Project Notion!](https://bedecked-child-87b.notion.site/SSAFIT-by-2ab4f7753cf280a982f6d6404e9cfa9a?pvs=143)
+
+
 ---
 
 ## 🚀 핵심 가치
