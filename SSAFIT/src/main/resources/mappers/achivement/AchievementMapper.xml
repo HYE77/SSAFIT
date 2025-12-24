@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafit.domain.achievement.dao.AchievementDao">
+
+    <select id="selectAllMissions" resultType="Mission">
+        SELECT id, mission_name AS missionName, description
+        FROM mission
+    </select>
+
+    <select id="selectRecordsByUser" resultType="MissionRecord">
+        SELECT id, mission_id AS missionId, user_id AS userId, achieved_at AS achievedAt
+        FROM mission_record
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="existsMissionRecord" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM mission_record
+        WHERE user_id = #{userId}
+          AND mission_id = #{missionId}
+    </select>
+
+    <insert id="insertMissionRecord">
+        INSERT INTO mission_record (mission_id, user_id, achieved_at)
+        VALUES (#{missionId}, #{userId}, NOW())
+    </insert>
+
+</mapper>

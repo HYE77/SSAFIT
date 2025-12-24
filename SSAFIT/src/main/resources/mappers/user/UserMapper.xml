@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafit.domain.user.dao.UserDao">
+
+    <!-- 공통 컬럼 목록 -->
+    <sql id="userColumns">
+        id,
+        login_id,
+        email,
+        pwd,
+        role,
+        profile_img_url,
+        first_name,
+        last_name,
+        nickname,
+        age,
+        birthdate,
+        gender,
+        reg_date,
+        height,
+        weight,
+        goal_type,
+        streak_days,
+        max_streak_days,
+        total_workout_days,
+        total_workout_minutes,
+        total_calories,
+        level,
+        exp,
+        coin,
+        group_id,
+        marketing_agree,
+        active,
+        update_date
+    </sql>
+
+    <!-- INSERT: 회원 가입 -->
+    <insert id="insertUser" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user (
+            login_id, email, pwd, role,
+            profile_img_url, first_name, last_name, nickname,
+            age, birthdate, gender,
+            reg_date, height, weight,
+            goal_type, streak_days, max_streak_days,
+            total_workout_days, total_workout_minutes,
+            total_calories, level, exp, coin,
+            group_id, marketing_agree, active, update_date
+        )
+        VALUES (
+            #{loginId}, #{email}, #{pwd}, #{role},
+            #{profileImgUrl}, #{firstName}, #{lastName}, #{nickname},
+            #{age}, #{birthDate}, #{gender},
+            NOW(), #{height}, #{weight},
+            #{goalType}, #{streakDays}, #{maxStreakDays},
+            #{totalWorkoutDays}, #{totalWorkoutMinutes},
+            #{totalCalories}, #{level}, #{exp}, #{coin},
+            #{groupId}, #{marketingAgreed}, #{active}, NOW()
+        )
+    </insert>
+
+    <!-- SELECT: 단일 회원 조회 (loginId 기준) -->
+	<select id="selectUserbyId" resultType="User">
+	    SELECT
+	        <include refid="userColumns"/>
+	    FROM user
+	    WHERE login_id = #{loginId}
+	</select>
+	
+	
+	<!-- SELECT: 회원 조회 (PK 기준) -->
+	<select id="selectById" resultType="User">
+	    SELECT
+	        <include refid="userColumns"/>
+	    FROM user
+	    WHERE id = #{id}
+	</select>
+	
+
+    <!-- SELECT: 전체 회원 조회 -->
+    <select id="selectAll" resultType="User">
+        SELECT
+            <include refid="userColumns"/>
+        FROM user
+    </select>
+    
+    <!-- SELECT: 현재 스트릭 조회 -->
+    <select id="selectCurrentStreak" resultType="int">
+	    SELECT COALESCE(streak_days, 0)
+	    FROM user
+	    WHERE id = #{userId}
+	</select>
+    
+
+    <!-- UPDATE: 회원 정보 수정 -->
+    <update id="updateUser" parameterType="User">
+        UPDATE user
+        SET
+            pwd = #{pwd},
+            nickname = #{nickname},
+            height = #{height},
+            weight = #{weight},
+            goal_type = #{goalType},
+            marketing_agree = #{marketingAgreed},
+            update_date = NOW()
+        WHERE login_id = #{loginId}
+    </update>
+    
+    <!-- UPDATE: 회원 운동 그룹 수정 -->
+    <update id="updateUserGroup" parameterType="User">
+	    UPDATE user
+	    SET group_id = #{groupId}
+	    WHERE id = #{id}
+	</update>  
+	
+	
+	<!-- UPDATEL 회원 비밀번호 변경 -->  
+	<update id="updatePassword">
+	    UPDATE user
+	    SET pwd = #{pwd},
+	        update_date = NOW()
+	    WHERE login_id = #{loginId}
+	</update>
+	
+    
+    <!-- UPDATE: 사용자 통계 정보 갱신 -->
+	<update id="updateUserStats" parameterType="User">
+	    UPDATE user
+	    SET
+	        streak_days = #{streakDays},
+	        max_streak_days = #{maxStreakDays},
+	        total_workout_days = #{totalWorkoutDays},
+	        total_workout_minutes = #{totalWorkoutMinutes},
+	        total_calories = #{totalCalories}
+	    WHERE id = #{id}
+	</update>
+    
+    
+
+    <!-- DELETE: 회원 삭제 -->
+    <delete id="deleteUser">
+        DELETE FROM user
+        WHERE login_id = #{loginId}
+    </delete>
+    
+    <!-- Auth : User Login -->
+    <select id="selectByLoginIdAndPwd"
+        parameterType="map"
+        resultType="User">
+	    SELECT *
+	    FROM user
+	    WHERE login_id = #{loginId}
+	      AND pwd = #{pwd}
+	      AND active = true
+	</select>
+	
+	
+	<!-- 로그아웃용 메서드 -->
+	<update id="increaseTokenVersion">
+	    UPDATE user
+	    SET token_version = token_version + 1
+	    WHERE id = #{userId}
+	</update>
+	
+
+
+</mapper>

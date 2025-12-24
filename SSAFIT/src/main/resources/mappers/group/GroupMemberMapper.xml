@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafit.domain.group.dao.GroupMemberDao">
+
+    <!-- INSERT: 그룹 가입 -->
+    <insert id="insert"
+            parameterType="GroupMember"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO group_member (
+            group_id,
+            user_id,
+            joined_at,
+            is_active
+        )
+        VALUES (
+            #{groupId},
+            #{userId},
+            NOW(),
+            true
+        )
+    </insert>
+
+    <!-- SELECT: 유저의 활성 멤버십 조회 (user는 하나의 그룹만) -->
+    <select id="selectActiveByUserId" resultType="GroupMember">
+        SELECT
+            id,
+            group_id,
+            user_id,
+            joined_at,
+            is_active
+        FROM group_member
+        WHERE user_id = #{userId}
+          AND is_active = true
+        LIMIT 1
+    </select>
+
+    <!-- SELECT: 그룹 활성 멤버 목록 (nickname 포함) -->
+    <select id="selectActiveMembers" resultType="com.ssafit.domain.group.dto.GroupMemberDto$MemberResponse">
+        SELECT
+            gm.user_id AS userId,
+            u.nickname AS nickname
+        FROM group_member gm
+        JOIN user u ON u.id = gm.user_id
+        WHERE gm.group_id = #{groupId}
+          AND gm.is_active = true
+        ORDER BY gm.joined_at ASC
+    </select>
+    
+    <!-- SELECT: 그룹-회원 데이터로 확성 회원 선택 -->
+    <select id="selectActiveByGroupAndUser" resultType="GroupMember">
+	    SELECT *
+	    FROM group_member
+	    WHERE group_id = #{groupId}
+	      AND user_id = #{userId}
+	      AND is_active = true
+	</select>
+    
+
+    <!-- COUNT: 그룹 활성 멤버 수 -->
+    <select id="countActiveMembers" resultType="int">
+        SELECT COUNT(*)
+        FROM group_member
+        WHERE group_id = #{groupId}
+          AND is_active = true
+    </select>
+
+    <!-- UPDATE: 탈퇴 (soft leave) -->
+    <update id="deactivate">
+        UPDATE group_member
+        SET is_active = false
+        WHERE group_id = #{groupId}
+          AND user_id = #{userId}
+          AND is_active = true
+    </update>
+
+    <!-- UPDATE: 재가입 (기존 row 활성화) -->
+    <update id="reactivate">
+        UPDATE group_member
+        SET is_active = true,
+            joined_at = NOW()
+        WHERE group_id = #{groupId}
+          AND user_id = #{userId}
+          AND is_active = false
+    </update>
+
+</mapper>

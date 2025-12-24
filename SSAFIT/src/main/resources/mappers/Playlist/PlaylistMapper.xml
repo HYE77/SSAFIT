@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafit.domain.playlist.dao.PlaylistDao">
+
+    <sql id="playlistColumns">
+        id,
+        publisher_id,
+        title,
+        description
+    </sql>
+
+    <!-- ========================================================= -->
+    <!-- INSERT: 플레이리스트 생성 -->
+    <!-- ========================================================= -->
+    <insert id="insertPlaylist"
+            parameterType="Playlist"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO playlist (
+            publisher_id,
+            title,
+            description
+        )
+        VALUES (
+            #{publisherId},
+            #{title},
+            #{description}
+        )
+    </insert>
+
+    <!-- ========================================================= -->
+    <!-- SELECT: 플레이리스트 단건 조회 -->
+    <!-- ========================================================= -->
+    <select id="selectById" resultType="Playlist">
+        SELECT <include refid="playlistColumns"/>
+        FROM playlist
+        WHERE id = #{id}
+    </select>
+
+    <!-- ========================================================= -->
+    <!-- SELECT: 내가 만든 플레이리스트 -->
+    <!-- ========================================================= -->
+    <select id="selectByPublisherId" resultType="Playlist">
+        SELECT <include refid="playlistColumns"/>
+        FROM playlist
+        WHERE publisher_id = #{publisherId}
+        ORDER BY id DESC
+    </select>
+
+    <!-- ========================================================= -->
+    <!-- SELECT: 전체 플레이리스트 조회 -->
+    <!-- ========================================================= -->
+    <select id="selectAll" resultType="Playlist">
+        SELECT <include refid="playlistColumns"/>
+        FROM playlist
+        ORDER BY id DESC
+    </select>
+
+    <!-- ========================================================= -->
+    <!-- UPDATE: 플레이리스트 수정 -->
+    <!-- ========================================================= -->
+    <update id="updatePlaylist" parameterType="Playlist">
+        UPDATE playlist
+        SET
+            title = #{title},
+            description = #{description}
+        WHERE id = #{id}
+    </update>
+
+    <!-- ========================================================= -->
+    <!-- DELETE: 플레이리스트 삭제 -->
+    <!-- ========================================================= -->
+    <delete id="deletePlaylist">
+        DELETE FROM playlist
+        WHERE id = #{id}
+    </delete>
+
+</mapper>

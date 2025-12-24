@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafit.domain.group.dao.WorkoutGroupDao">
+
+    <sql id="groupColumns">
+        id,
+        group_name,
+        master_id,
+        is_deleted
+    </sql>
+
+    <!-- INSERT -->
+    <insert id="insertGroup"
+            parameterType="WorkoutGroup"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO workout_group (
+            group_name,
+            master_id
+        )
+        VALUES (
+            #{groupName},
+            #{masterId}
+        )
+    </insert>
+
+    <!-- SELECT: 단건 -->
+    <select id="selectById" resultType="WorkoutGroup">
+        SELECT <include refid="groupColumns"/>
+        FROM workout_group
+        WHERE id = #{id}
+          AND is_deleted = false
+    </select>
+
+    <!-- SELECT: 전체 그룹 -->
+    <select id="selectAll" resultType="WorkoutGroup">
+        SELECT <include refid="groupColumns"/>
+        FROM workout_group
+        WHERE is_deleted = false
+        ORDER BY id DESC
+    </select>
+
+    <!-- UPDATE -->
+    <update id="updateGroup" parameterType="WorkoutGroup">
+        UPDATE workout_group
+        SET
+            group_name = #{groupName}
+        WHERE id = #{id}
+    </update>
+    
+    <!-- UPDATE: 그룹장 위임 -->
+	<update id="updateGroupMaster" parameterType="WorkoutGroup">
+	    UPDATE workout_group
+	    SET master_id = #{masterId}
+	    WHERE id = #{id}
+	      AND is_deleted = false
+	</update>
+    
+
+    <!-- DELETE: Soft Delete -->
+    <update id="softDelete">
+        UPDATE workout_group
+        SET is_deleted = true
+        WHERE id = #{id}
+    </update>
+
+</mapper>

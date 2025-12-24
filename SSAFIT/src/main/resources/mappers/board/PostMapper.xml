@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafit.domain.board.dao.PostDao">
+
+    <insert id="insertPost" parameterType="Post">
+	    INSERT INTO post (
+	        user_id,
+	        group_id,
+	        category,
+	        title,
+	        content,
+	        image_urls,
+	        view_cnt,
+	        like_cnt,
+	        comment_cnt,
+	        is_pinned,
+	        is_notice,
+	        visibility,
+	        deleted,
+	        created_at,
+	        updated_at
+	    )
+	    VALUES (
+	        #{userId},
+	        #{groupId},
+	        #{category},
+	        #{title},
+	        #{content},
+	        #{imageUrls},
+	        0, 0, 0,
+	        false, false,
+	        true, false,
+	        NOW(), NOW()
+	    )
+	</insert>
+
+
+    <select id="selectById" resultType="Post">
+        SELECT * FROM post
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultType="Post">
+        SELECT * FROM post
+        ORDER BY created_at DESC
+        WHERE group_id IS NULL
+    </select>
+    
+    <!-- 그룹 게시판 게시글 조회 -->
+    <select id="selectGroupPosts" resultType="com.ssafit.domain.group.dto.WorkoutGroupDto$GroupMainResponse$GroupPostResponse">
+	    SELECT
+	        p.id AS postId,
+	        p.title AS title,
+	        u.nickname AS writerNickname,
+	        p.comment_cnt AS commentCount,
+	        p.view_cnt AS viewCount
+	    FROM post p
+	    JOIN user u ON p.user_id = u.id
+	    WHERE p.group_id = #{groupId}
+	      AND p.deleted = false
+	      AND p.visibility = true
+	    ORDER BY p.created_at DESC
+	    LIMIT 20
+	</select>
+    
+
+    <update id="updatePost" parameterType="Post">
+        UPDATE post
+        SET
+            title = #{title},
+            content = #{content},
+            image_urls = #{imageUrls},
+            visibility = #{visibility}
+        WHERE id = #{id}
+    </update>
+
+    <update id="softDeletePost">
+        UPDATE post
+        SET deleted = TRUE
+        WHERE id = #{id}
+    </update>
+
+    <update id="increaseViewCnt">
+        UPDATE post
+        SET view_cnt = view_cnt + 1
+        WHERE id = #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafit.domain.video.dao.VideoDao">
+
+    <!-- ========================================================= -->
+    <!-- 공통 컬럼 -->
+    <!-- ========================================================= -->
+    <sql id="videoColumns">
+        id,
+        title,
+        description,
+        video_url,
+        thumbnail_url,
+        duration_seconds,
+        difficulty,
+        target_part,
+        calorie_estimate,
+        category,
+        view_cnt,
+        like_cnt,
+        review_cnt,
+        created_by,
+        created_at,
+        updated_at,
+        visibility,
+        is_deleted
+    </sql>
+
+    <!-- ========================================================= -->
+    <!-- C: 영상 등록 -->
+    <!-- ========================================================= -->
+    <insert id="insertVideo" parameterType="Video" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO video (
+            title,
+            description,
+            video_url,
+            thumbnail_url,
+            duration_seconds,
+            difficulty,
+            target_part,
+            calorie_estimate,
+            category,
+            view_cnt,
+            like_cnt,
+            review_cnt,
+            created_by,
+            created_at,
+            updated_at,
+            visibility,
+            is_deleted
+        ) VALUES (
+            #{title},
+            #{description},
+            #{videoUrl},
+            #{thumbnailUrl},
+            #{durationSeconds},
+            #{difficulty},
+            #{targetPart},
+            #{calorieEstimate},
+            #{category},
+            #{viewCnt},
+            #{likeCnt},
+            #{reviewCnt},
+            #{createdBy},
+            #{createdAt},
+            #{updatedAt},
+            #{visibility},
+            #{deleted}
+        )
+    </insert>
+
+    <!-- ========================================================= -->
+    <!-- R: 영상 단건 조회 -->
+    <!-- ========================================================= -->
+    <select id="selectVideoById" parameterType="long" resultType="Video">
+        SELECT
+        <include refid="videoColumns"/>
+        FROM video
+        WHERE id = #{id}
+    </select>
+
+    <!-- ========================================================= -->
+    <!-- R: 전체 영상 조회 (사용자용) -->
+    <!-- ========================================================= -->
+    <select id="selectAllVisibleVideos" resultType="Video">
+        SELECT
+        <include refid="videoColumns"/>
+        FROM video
+        WHERE is_deleted = false
+          AND visibility = true
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- ========================================================= -->
+    <!-- R: 전체 영상 조회 (관리자용) -->
+    <!-- ========================================================= -->
+    <select id="selectAllVideos" resultType="Video">
+        SELECT
+        <include refid="videoColumns"/>
+        FROM video
+        ORDER BY created_at DESC
+    </select>
+    
+    <!-- ========================================================= -->
+    <!-- R: id 목록으로 조회 -->
+    <!-- ========================================================= -->
+    <select id="selectByIds" resultType="Video">
+	    SELECT
+	        id,
+	        title,
+	        thumbnail_url,
+	        duration_seconds,
+	        calorie_estimate,
+	        difficulty
+	    FROM video
+	    WHERE id IN
+	    <foreach collection="ids" item="id" open="(" separator="," close=")">
+	        #{id}
+	    </foreach>
+	</select>
+    
+
+    <!-- ========================================================= -->
+    <!-- U: 영상 정보 수정 -->
+    <!-- ========================================================= -->
+    <update id="updateVideo" parameterType="Video">
+        UPDATE video
+        SET
+            title = #{title},
+            description = #{description},
+            thumbnail_url = #{thumbnailUrl},
+            difficulty = #{difficulty},
+            target_part = #{targetPart},
+            calorie_estimate = #{calorieEstimate},
+            category = #{category},
+            visibility = #{visibility},
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+          AND is_deleted = false
+    </update>
+
+    <!-- ========================================================= -->
+    <!-- D: 영상 삭제 (Soft Delete) -->
+    <!-- ========================================================= -->
+    <update id="deleteVideo" parameterType="long">
+        UPDATE video
+        SET
+            is_deleted = true,
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND is_deleted = false
+    </update>
+
+    <!-- ========================================================= -->
+    <!-- ETC: 조회수 증가 -->
+    <!-- ========================================================= -->
+    <update id="increaseViewCnt" parameterType="long">
+        UPDATE video
+        SET view_cnt = view_cnt + 1
+        WHERE id = #{id}
+          AND is_deleted = false
+    </update>
+
+</mapper>

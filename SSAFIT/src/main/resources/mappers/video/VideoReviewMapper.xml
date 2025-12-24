@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafit.domain.video.dao.VideoReviewDao">
+
+    <insert id="insertReview" parameterType="VideoReview" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO video_review (
+            user_id, video_id,
+            satisfaction, difficulty,
+            content
+        )
+        VALUES (
+            #{userId}, #{videoId},
+            #{satisfaction}, #{difficulty},
+            #{content}
+        )
+    </insert>
+
+    <select id="selectById" resultType="VideoReview">
+        SELECT *
+        FROM video_review
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByVideoId" resultType="VideoReview">
+        SELECT *
+        FROM video_review
+        WHERE video_id = #{videoId}
+        ORDER BY created_time DESC
+    </select>
+
+    <update id="updateReview" parameterType="VideoReview">
+        UPDATE video_review
+        SET
+            satisfaction = #{satisfaction},
+            difficulty = #{difficulty},
+            content = #{content}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteReview">
+        DELETE FROM video_review
+        WHERE id = #{id}
+    </delete>
+    
+    <select id="selectSummaryByVideoId" resultType="com.ssafit.domain.video.dto.VideoReviewSummary">
+	  SELECT
+	    AVG(satisfaction) AS avgSatisfaction,
+	    AVG(difficulty) AS avgDifficulty,
+	    COUNT(*) AS reviewCnt
+	  FROM video_review
+	  WHERE video_id = #{videoId}
+	</select>
+    
+
+</mapper>

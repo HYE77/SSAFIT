@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafit.domain.playlist.dao.PlaylistVideoDao">
+
+    <!-- ========================================================= -->
+    <!-- INSERT: 플레이리스트에 영상 추가 -->
+    <!-- ========================================================= -->
+    <insert id="insert"
+            parameterType="PlaylistVideo"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO playlist_video (
+            playlist_id,
+            video_id
+        )
+        VALUES (
+            #{playlistId},
+            #{videoId}
+        )
+    </insert>
+
+    <!-- ========================================================= -->
+    <!-- SELECT: 플레이리스트에 포함된 영상 ID 목록 -->
+    <!-- ========================================================= -->
+    <select id="selectVideoIds" resultType="long">
+        SELECT video_id
+        FROM playlist_video
+        WHERE playlist_id = #{playlistId}
+          AND is_deleted = false
+        ORDER BY reg_date ASC
+    </select>
+
+    <!-- ========================================================= -->
+    <!-- UPDATE: 플레이리스트에서 영상 제거 (Soft Delete) -->
+    <!-- ========================================================= -->
+    <update id="softDelete">
+        UPDATE playlist_video
+        SET is_deleted = true
+        WHERE playlist_id = #{playlistId}
+          AND video_id = #{videoId}
+    </update>
+
+</mapper>
